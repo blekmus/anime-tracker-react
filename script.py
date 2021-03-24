@@ -1,3 +1,9 @@
+# script to go through anilist users to see
+# if they exist or not
+
+# used this to find a range of users that exist
+# for the random list btn in the search page
+
 import requests
 import time
 

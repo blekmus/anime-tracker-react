@@ -14,7 +14,7 @@ function App() {
   return (
     <ApolloProvider client={client}>
       <Router>
-        <Suspense fallback={<div style={{ backgroundColor: '#0b1622' }} />}>
+        <Suspense fallback={null} maxDuration={5000}>
           <Switch>
             <Route exact path="/" component={SearchPage} />
             <Route path="/:user" component={UserPage} />
