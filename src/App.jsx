@@ -1,7 +1,9 @@
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
+import { lazy, Suspense } from 'react'
 import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client'
-import SearchPage from './pages/search-page'
-import UserPage from './pages/user-page'
+
+const SearchPage = lazy(() => import('./pages/search-page'))
+const UserPage = lazy(() => import('./pages/user-page'))
 
 function App() {
   const client = new ApolloClient({
@@ -12,17 +14,12 @@ function App() {
   return (
     <ApolloProvider client={client}>
       <Router>
-        <Switch>
-
-          <Route exact path="/">
-            <SearchPage />
-          </Route>
-
-          <Route path="/:user">
-            <UserPage />
-          </Route>
-
-        </Switch>
+        <Suspense fallback={<div style={{ backgroundColor: '#0b1622' }} />}>
+          <Switch>
+            <Route exact path="/" component={SearchPage} />
+            <Route path="/:user" component={UserPage} />
+          </Switch>
+        </Suspense>
       </Router>
     </ApolloProvider>
   )

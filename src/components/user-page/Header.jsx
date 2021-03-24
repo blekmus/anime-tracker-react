@@ -43,7 +43,7 @@ function Header({
       padding-top: 10px;
       padding-left: 20px;
       z-index: 1;
-      background: linear-gradient(180deg, rgba(0, 0, 0, 0.49) 0%, rgba(0, 0, 0, 0) 100%);
+      background: linear-gradient(180deg, rgba(0, 0, 0, 0.31) 0%, rgba(0, 0, 0, 0) 100%);
 
       a {
         transition: color 0.3s ease;
@@ -168,10 +168,13 @@ function Header({
         .line {
           border-radius: 50px;
           height: 3px;
-          width: 90%;
+          width: 80%;
           background-color: ${colors.primaryAccent};
           opacity: 0;
-          transition: background-color 0.3s ease, width 0.3s ease;
+          transition: 
+            background-color 0.3s ease, 
+            width 0.3s ease 0.1s, 
+            opacity 0.3s ease;
           margin: 0 auto;
         }
       }
