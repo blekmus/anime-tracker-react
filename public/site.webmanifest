@@ -1,6 +1,6 @@
 {
-    "name": "Anime Tracker",
-    "short_name": "Anime Tracker",
+    "name": "AniTracker",
+    "short_name": "AniTracker",
     "icons": [
         {
             "src": "/android-chrome-192x192.png",

@@ -154,7 +154,7 @@ function UserPage() {
 
   // change title to contain user's name
   useEffect(() => {
-    document.title = `Anime Tracker - ${user}`
+    document.title = `AniTracker - ${user}`
   }, [])
 
   return (

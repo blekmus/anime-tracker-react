@@ -338,107 +338,137 @@ function StatsCard({ visibility: setStatsPopup, user }) {
           &::-webkit-scrollbar-thumb {
             background-color: #2c384a;
           }
-
-          .scrollable {
-            height: 100%;
-            display: grid;
-            grid-template-rows: 1fr 1fr;
-            grid-gap: 10px 0;
-            padding: 15px 30px 20px 30px;
-            min-height: 500px;
-          }
       }
     }
 
-    .section {
-      overflow: hidden;
-      display: grid;
-      grid-template-rows: 23px auto;
+    .scrollable {
+      height: 100%;
+      padding: 15px 30px 20px 30px;
+      min-height: 500px;
 
-      .section-title {
-        color: ${colors.primaryAccent};
-        font-family: 'Overpass', sans-serif;
-        font-size: 1rem;
-        font-weight: 600;
-        margin-left: 8px;
-      }
-
-      .card-cont {
-        overflow: hidden;
+      .no-data {
+        display: flex;
+        justify-content: center;
+        align-items: center;
         height: 100%;
-        background-color: #151F2E; 
-        border-radius: 3px;
-        padding: 13px 15px;
+        flex-direction: column;
+        
+        h1 {
+          font-size: 4rem;
+          font-family: 'Overpass',sans-serif;
+          font-weight: 400;
+          color: #739dc238;
 
-        display: grid;
-        grid-template-areas: "sect1 sect2 sect3";
-        grid-template-columns: 28% 44% 28%;
-
-        .sub-sect-1,
-        .sub-sect-3 {
-          display: flex;
-          flex-direction: column;
-          justify-content: space-around;
-
-          .sep {
-            height: 2px;
-            background-color: #313A47;
-            width: 100%;
-          }
-
-          .entry {
-            display: flex;
-            align-items: center;
-
-            h1 {
-              font-size: 1.17rem;
-              font-family: 'Source Sans Pro', sans-serif;
-              font-weight: 600;
-              color: #8596A5;
-            }
-
-            h2 {
-              margin-left: auto;
-              font-size: 1.17rem;
-              font-family: 'Source Sans Pro', sans-serif;
-              font-weight: 600;
-              color: ${colors.secondaryAccent};
-            }
-          }
         }
 
-        .sub-sect-1 {
-          grid-area: sect1;
-          border-right: 2px #313A47 solid;
-          
-          h2 {
-            padding-right: 15px;
+        h2 {
+          color: white;
+          font-family: 'Overpass',sans-serif;
+          font-weight: 600;
+          color: #739dc26e;
+          font-size: 0.9rem;
+        }
+      }
+
+      .data {
+        display: grid;
+        grid-template-rows: 1fr 1fr;
+        height: 100%;
+        gap: 10px 0px;
+
+        .section {
+          overflow: hidden;
+          display: grid;
+          grid-template-rows: 23px auto;
+
+          .section-title {
+            color: ${colors.primaryAccent};
+            font-family: 'Overpass', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-left: 8px;
           }
 
-          h1 {
-            padding-left: 5px;
-          }
-        }   
+          .card-cont {
+            overflow: hidden;
+            height: 100%;
+            background-color: #151F2E; 
+            border-radius: 3px;
+            padding: 13px 15px;
 
-        .sub-sect-2 {
-          grid-area: sect2;
-        } 
+            display: grid;
+            grid-template-areas: "sect1 sect2 sect3";
+            grid-template-columns: 28% 44% 28%;
 
-        .sub-sect-3 {
-          grid-area: sect3;
+            .sub-sect-1,
+            .sub-sect-3 {
+              display: flex;
+              flex-direction: column;
+              justify-content: space-around;
 
-          border-left: 2px #313A47 solid;
-          
-          h2 {
-            padding-right: 5px;
-          }
+              .sep {
+                height: 2px;
+                background-color: #313A47;
+                width: 100%;
+              }
 
-          h1 {
-            padding-left: 15px;
+              .entry {
+                display: flex;
+                align-items: center;
+
+                h1 {
+                  font-size: 1.17rem;
+                  font-family: 'Source Sans Pro', sans-serif;
+                  font-weight: 600;
+                  color: #8596A5;
+                }
+
+                h2 {
+                  margin-left: auto;
+                  font-size: 1.17rem;
+                  font-family: 'Source Sans Pro', sans-serif;
+                  font-weight: 600;
+                  color: ${colors.secondaryAccent};
+                }
+              }
+            }
+
+            .sub-sect-1 {
+              grid-area: sect1;
+              border-right: 2px #313A47 solid;
+              
+              h2 {
+                padding-right: 15px;
+              }
+
+              h1 {
+                padding-left: 5px;
+              }
+            }   
+
+            .sub-sect-2 {
+              grid-area: sect2;
+            } 
+
+            .sub-sect-3 {
+              grid-area: sect3;
+
+              border-left: 2px #313A47 solid;
+              
+              h2 {
+                padding-right: 5px;
+              }
+
+              h1 {
+                padding-left: 15px;
+              }
+            }
           }
         }
       }
     }
+
+
 
     .loading-icon {
       height: 50px;
@@ -645,10 +675,19 @@ function StatsCard({ visibility: setStatsPopup, user }) {
     },
   })
 
-  // stats sections and image cards
+  // stats section and image cards
   const Content = () => {
     const animeData = userData.User.statistics.anime
     const mangaData = userData.User.statistics.manga
+
+    if (animeData.count === 0) {
+      return (
+        <div className="no-data">
+          <h1>(~˘▾˘)~</h1>
+          <h2>Empty... Empty...</h2>
+        </div>
+      )
+    }
 
     const animeStats = (
       <>
@@ -731,7 +770,7 @@ function StatsCard({ visibility: setStatsPopup, user }) {
     )
 
     return (
-      <>
+      <div className="data">
         <div className="section">
           <p className="section-title">Anime</p>
           <div className="card-cont">{animeStats}</div>
@@ -741,7 +780,7 @@ function StatsCard({ visibility: setStatsPopup, user }) {
           <p className="section-title">Manga</p>
           <div className="card-cont">{mangaStats}</div>
         </div>
-      </>
+      </div>
     )
   }
 
