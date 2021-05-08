@@ -69,7 +69,7 @@ function Footer({ page }) {
         </span>
         by
         {' '}
-        <a href="https://github.com/fire-walker" rel="noreferrer" target="_blank">fire-walker</a>
+        <a href="https://github.com/blekmus" rel="noreferrer" target="_blank">blekmus</a>
       </h2>
     </div>
   )
