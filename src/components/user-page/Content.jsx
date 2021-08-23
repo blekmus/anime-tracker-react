@@ -2,6 +2,7 @@
 import { css } from '@emotion/react'
 import PropTypes from 'prop-types'
 import { useHistory } from 'react-router-dom'
+import { useState, useMemo } from 'react'
 import { useQuery, gql } from '@apollo/client'
 import { v4 as uuid } from 'uuid'
 
@@ -67,15 +68,37 @@ function Content({
   sort,
 }) {
   let sortType
-  let cards
-
   const history = useHistory()
+  const [queryData, setQueryData] = useState({})
 
-  // grid cont
-  const gridStyles = css`
+  // parent styles
+  const contStyles = css`
     max-width: 1300px;
     width: 85%;
     margin: 0 auto 50px auto;
+
+    .entry-list-title {
+      margin-left: 10px;
+      margin-bottom: 10px;
+      font-weight: 700;
+      font-family: 'Overpass', sans-serif;
+      font-size: 1.4rem;
+      color: #808a93;
+    }
+
+    /* tablet */
+    @media (min-width: 640px) and (max-width: 800px) {
+      width: 90%;
+    }
+    /* mobile */
+    @media (max-width: 640px) {
+      width: 92%;
+    }
+  `
+
+  // grid cont
+  const gridStyles = css`
+    width: 100%;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 25px 20px;
@@ -83,13 +106,11 @@ function Content({
 
     /* tablet */
     @media (min-width: 640px) and (max-width: 800px) {
-      width: 90%;
       grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     }
 
     /* mobile */
     @media (max-width: 640px) {
-      width: 92%;
       gap: 15px 10px;
       grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
     }
@@ -97,23 +118,19 @@ function Content({
 
   // list cont
   const listStyles = css`
+    width: 100%;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(550px, 1fr));
     gap: 0px 20px;
-    width: 85%;
-    max-width: 1300px;
-    margin: 0 auto 50px auto;
 
     /* tablet */
     @media (min-width: 640px) and (max-width: 800px) {
-      width: 90%;
       display: flex;
       flex-direction: column;
     }
 
     /* mobile */
     @media (max-width: 640px) {
-      width: 92%;
       display: flex;
       flex-direction: column;
     }
@@ -196,19 +213,12 @@ function Content({
       break
   }
 
-  // bring in user data
-  const { data: userData } = useQuery(USER_DATA, {
-    onError: handleErrors,
-    variables: {
-      userName: user,
-      format: format.toUpperCase(),
-      sortType,
-      status: status.toUpperCase(),
-    },
-  })
+  const listCards = useMemo(() => {
+    if (!queryData.MediaListCollection) {
+      return 'Loading'
+    }
 
-  if (userData) {
-    if (userData.MediaListCollection.lists.length === 0) {
+    if (queryData.MediaListCollection.lists.length === 0) {
       return (
         <div css={emptyStyles}>
           <h1>¯\_(ツ)_/¯</h1>
@@ -217,31 +227,77 @@ function Content({
       )
     }
 
-    let entries
-    entries = [...userData.MediaListCollection.lists[0].entries]
+    // let entryLists
+    const entryLists = [...queryData.MediaListCollection.lists]
 
-    // to counter a bug with the query
-    // both MEDIA_TITLE_ENGLISH and MEDIA_TITLE_ENGLISH_DESC
-    // return the same output
-    if (sort === 'Alphabetic') {
-      entries = entries.reverse()
-    }
+    let defaultLists = []
+    const userLists = []
 
-    if (order === 'ascending') {
-      cards = entries.map((entry) => (
+    // loop through all lists and append the to default and user
+    entryLists.forEach((entryList) => {
+      let cardData = [...entryList.entries]
+
+      // to counter a bug with the api
+      // both MEDIA_TITLE_ENGLISH and MEDIA_TITLE_ENGLISH_DESC
+      // return the same response
+      if (sort === 'Alphabetic') {
+        cardData = cardData.reverse()
+      }
+
+      if (order !== 'ascending') {
+        cardData = cardData.reverse()
+      }
+
+      const cardList = cardData.map((entry) => (
         <Card entry={entry} view={view} key={uuid()} status={status} format={format} />
       ))
-    } else {
-      const reversedEntries = entries.reverse()
 
-      cards = reversedEntries.map((entry) => (
-        <Card entry={entry} view={view} key={uuid()} status={status} format={format} />
-      ))
-    }
-  }
+      // check if list is default or not
+      if (['reading', 'watching', 'completed', 'planning', 'paused'].includes(entryList.name.toLowerCase())) {
+        defaultLists.push(cardList)
+      } else {
+        userLists.push((
+          <div css={contStyles} key={uuid()}>
+            <h1 className="entry-list-title">{entryList.name}</h1>
+            <div css={view === 'grid' ? gridStyles : listStyles}>
+              {cardList}
+            </div>
+          </div>
+        ))
+      }
+    })
+
+    defaultLists = (
+      <div css={contStyles} key={uuid()}>
+        <div css={view === 'grid' ? gridStyles : listStyles}>
+          {defaultLists.flat(1)}
+        </div>
+      </div>
+    )
+
+    // have the defaults uptop and user lists down bottom
+    return (
+      <>
+        {defaultLists}
+        {userLists}
+      </>
+    )
+  }, [queryData, order, view])
+
+  // bring in user data and set to state
+  useQuery(USER_DATA, {
+    onError: handleErrors,
+    onCompleted: (data) => setQueryData(data),
+    variables: {
+      userName: user,
+      format: format.toUpperCase(),
+      sortType,
+      status: status.toUpperCase(),
+    },
+  })
 
   return (
-    <div css={view === 'grid' ? gridStyles : listStyles}>{cards}</div>
+    <>{listCards}</>
   )
 }
 
