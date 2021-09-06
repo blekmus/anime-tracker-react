@@ -10,14 +10,40 @@ function Card({
   view,
   status,
   format,
+  lang,
 }) {
   let title
 
-  // if english title is missing use romaji
-  if (!entry.media.title.english) {
-    title = entry.media.title.romaji
-  } else {
-    title = entry.media.title.english
+  // resolve title lang
+  switch (lang.toLowerCase()) {
+    case 'native':
+      if (!entry.media.title.native) {
+        title = entry.media.title.english
+      } else {
+        title = entry.media.title.native
+      }
+      break
+    case 'romaji':
+      if (!entry.media.title.romaji) {
+        title = entry.media.title.english
+      } else {
+        title = entry.media.title.romaji
+      }
+      break
+    case 'english':
+      if (!entry.media.title.english) {
+        title = entry.media.title.romaji
+      } else {
+        title = entry.media.title.english
+      }
+      break
+    default:
+      if (!entry.media.title.romaji) {
+        title = entry.media.title.english
+      } else {
+        title = entry.media.title.romaji
+      }
+      break
   }
 
   // grid card

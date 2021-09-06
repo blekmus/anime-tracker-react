@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 /** @jsxImportSource @emotion/react */
 import { css } from '@emotion/react'
 import PropTypes from 'prop-types'
@@ -11,11 +12,16 @@ const USER_FAVS = gql`
 query ($userName: String) { 
   User (name: $userName) {
     id
+    options {
+      titleLanguage
+    }
     favourites {
       anime {
         nodes {
           title {
             romaji
+            english
+            native
           }
           siteUrl
           coverImage {
@@ -27,6 +33,8 @@ query ($userName: String) {
         nodes {
           title {
             romaji
+            english
+            native
           }
           siteUrl
           coverImage {
@@ -260,29 +268,70 @@ function FavsCard({ visibility: setFavsPopup, user }) {
 
   // fav sections and image cards
   const Content = () => {
+    const CoverItem = (props) => {
+      const { entry, type, lang } = props
+      let coverImg
+      let title
+
+      if (type === 'character') {
+        coverImg = entry.image.medium
+        title = entry.name.full
+      } else {
+        coverImg = entry.coverImage.medium
+        switch (lang.toLowerCase()) {
+          case 'native':
+            if (!entry.title.native) {
+              title = entry.title.english
+            } else {
+              title = entry.title.native
+            }
+            break
+          case 'romaji':
+            if (!entry.title.romaji) {
+              title = entry.title.english
+            } else {
+              title = entry.title.romaji
+            }
+            break
+          case 'english':
+            if (!entry.title.english) {
+              title = entry.title.romaji
+            } else {
+              title = entry.title.english
+            }
+            break
+          default:
+            if (!entry.title.romaji) {
+              title = entry.title.english
+            } else {
+              title = entry.title.romaji
+            }
+            break
+        }
+      }
+
+      return (
+        <button key={uuid()} type="button" onClick={() => { window.open(entry.siteUrl, '_blank') }}>
+          <img
+            src={coverImg}
+            alt={title}
+            title={title}
+          />
+        </button>
+      )
+    }
+
     // anime favs
     const animeListData = userData.User.favourites.anime.nodes
-    const animeList = animeListData.map((entry) => (
-      <button key={uuid()} type="button" onClick={() => { window.open(entry.siteUrl, '_blank') }}>
-        <img src={entry.coverImage.medium} alt={entry.title.romaji.toLowerCase()} />
-      </button>
-    ))
+    const animeList = animeListData.map((entry) => <CoverItem entry={entry} type="anime" lang={userData.User.options.titleLanguage} />)
 
     // manga favs
     const mangaListData = userData.User.favourites.manga.nodes
-    const mangaList = mangaListData.map((entry) => (
-      <button key={uuid()} type="button" onClick={() => { window.open(entry.siteUrl, '_blank') }}>
-        <img src={entry.coverImage.medium} alt={entry.title.romaji} />
-      </button>
-    ))
+    const mangaList = mangaListData.map((entry) => <CoverItem entry={entry} type="manga" lang={userData.User.options.titleLanguage} />)
 
     // character favs
     const charListData = userData.User.favourites.characters.nodes
-    const charList = charListData.map((entry) => (
-      <button key={uuid()} type="button" onClick={() => { window.open(entry.siteUrl, '_blank') }}>
-        <img src={entry.image.medium} alt={entry.name.full} />
-      </button>
-    ))
+    const charList = charListData.map((entry) => <CoverItem entry={entry} type="character" lang={userData.User.options.titleLanguage} />)
 
     return (
       <>

@@ -483,7 +483,7 @@ function StatsCard({ visibility: setStatsPopup, user }) {
 
     /* laptop */
     @media (min-width: 800px) and (max-width: 1000px) {
-      .section {
+      .scrollable .data .section {
         .card-cont {
           grid-template-areas: 
             "sect1 sect2"
@@ -530,7 +530,7 @@ function StatsCard({ visibility: setStatsPopup, user }) {
 
     /* tablet */
     @media (min-width: 640px) and (max-width: 800px) {
-      .section {
+      .scrollable .data .section {
         .card-cont {
           padding: 10px;
           grid-template-areas: 
@@ -594,7 +594,7 @@ function StatsCard({ visibility: setStatsPopup, user }) {
         }
       }
 
-      .section {
+      .scrollable .data .section {
         .card-cont {
           border-radius: 0px;
           padding: 5px 10px 10px 10px;

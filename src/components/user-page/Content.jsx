@@ -10,6 +10,12 @@ import Card from './Card'
 
 const USER_DATA = gql`
 query($userName: String, $format: MediaType, $sortType: [MediaListSort], $status: MediaListStatus) {
+  User (name: $userName) {
+    id
+    options {
+      titleLanguage
+    }
+  }
   MediaListCollection(userName: $userName, type: $format, sort: $sortType, status: $status) {
     lists {
       name
@@ -23,6 +29,7 @@ query($userName: String, $format: MediaType, $sortType: [MediaListSort], $status
           title {
             romaji
             english
+            native
           }
           siteUrl
           format
@@ -71,7 +78,19 @@ function Content({
   const history = useHistory()
   const [queryData, setQueryData] = useState({})
 
-  // parent styles
+  const styles = css`
+    .content-loading-icon {
+      height: 50px;
+      margin-top: 90px;
+      margin-left: auto;
+      margin-right: auto;
+      display: flex;
+      justify-content: center;
+      fill: white;
+    }
+  `
+
+  // content list parent styles
   const contStyles = css`
     max-width: 1300px;
     width: 85%;
@@ -172,6 +191,7 @@ function Content({
 
   // function to handle gql errors
   const handleErrors = (e) => {
+    console.log(e)
     if (e.graphQLErrors) {
       e.graphQLErrors.forEach((error) => {
         if (error.status === 404) {
@@ -213,9 +233,47 @@ function Content({
       break
   }
 
+  // loading animation
+  const loadingIcon = (
+    <svg
+      className="content-loading-icon"
+      version="1.1"
+      xmlns="http://www.w3.org/2000/svg"
+      x="0px"
+      y="0px"
+      viewBox="0 0 50 50"
+      xmlSpace="preserve"
+    >
+      <path d="M43.935,25.145c0-10.318-8.364-18.683-18.683-18.683c-10.318,0-18.683,8.365-18.683,18.683h4.068c0-8.071,6.543-14.615,14.615-14.615c8.072,0,14.615,6.543,14.615,14.615H43.935z">
+        <animateTransform
+          attributeType="xml"
+          attributeName="transform"
+          type="rotate"
+          from="0 25 25"
+          to="360 25 25"
+          dur="0.6s"
+          repeatCount="indefinite"
+        />
+      </path>
+    </svg>
+  )
+
+  // bring in user data and set to state
+  const { loading } = useQuery(USER_DATA, {
+    onError: handleErrors,
+    onCompleted: (data) => setQueryData(data),
+    variables: {
+      userName: user,
+      format: format.toUpperCase(),
+      sortType,
+      status: status.toUpperCase(),
+    },
+  })
+
+  // create cards when order, view and tab changes
   const listCards = useMemo(() => {
     if (!queryData.MediaListCollection) {
-      return 'Loading'
+      return loadingIcon
     }
 
     if (queryData.MediaListCollection.lists.length === 0) {
@@ -227,7 +285,6 @@ function Content({
       )
     }
 
-    // let entryLists
     const entryLists = [...queryData.MediaListCollection.lists]
 
     let defaultLists = []
@@ -249,7 +306,14 @@ function Content({
       }
 
       const cardList = cardData.map((entry) => (
-        <Card entry={entry} view={view} key={uuid()} status={status} format={format} />
+        <Card
+          entry={entry}
+          view={view}
+          key={uuid()}
+          status={status}
+          format={format}
+          lang={queryData.User.options.titleLanguage}
+        />
       ))
 
       // check if list is default or not
@@ -284,20 +348,13 @@ function Content({
     )
   }, [queryData, order, view])
 
-  // bring in user data and set to state
-  useQuery(USER_DATA, {
-    onError: handleErrors,
-    onCompleted: (data) => setQueryData(data),
-    variables: {
-      userName: user,
-      format: format.toUpperCase(),
-      sortType,
-      status: status.toUpperCase(),
-    },
-  })
+  // show loadingIcon
+  if (loading) {
+    return <div css={styles}>{loadingIcon}</div>
+  }
 
   return (
-    <>{listCards}</>
+    <div css={styles}>{listCards}</div>
   )
 }
 
