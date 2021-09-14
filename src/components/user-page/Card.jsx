@@ -183,10 +183,6 @@ function Card({
             font-family: 'Source Sans Pro', sans-serif;
             color: #d878cb;
             text-decoration: none;
-            display: -webkit-box;
-            -webkit-box-orient: vertical;
-            -webkit-line-clamp: 1;
-            overflow: hidden;
             width: 100%;
           }
         }
@@ -437,7 +433,7 @@ function Card({
 
               <div className="right">
                 <h2 style={{ textTransform: 'capitalize' }}>{animeStatus}</h2>
-                <h2>{entry.media.format.replaceAll('_', ' ').toUpperCase()}</h2>
+                <h2>{entry.media.format !== null ? entry.media.format.replaceAll('_', ' ').toUpperCase() : '-'}</h2>
                 <h2>{entry.media.seasonYear ? entry.media.seasonYear : '-'}</h2>
               </div>
             </div>
